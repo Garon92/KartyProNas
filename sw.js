@@ -1,6 +1,6 @@
 // Uloží stránku do telefonu, aby fungovala i bez signálu.
 // Při změně souborů zvyš číslo verze, ať se nová verze stáhne.
-const CACHE = "kpn-v1";
+const CACHE = "kpn-v2";
 const ASSETS = [
   "./",
   "index.html",
