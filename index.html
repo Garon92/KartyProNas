@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Karty pro nás</title>
+  <meta name="description" content="Rodinné karty s otázkami. Ťukni, vytáhni kartu a každý odpoví po svém.">
+  <meta name="theme-color" content="#FBF4E9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1B1A24" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Karty">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1 class="brand"><span class="brand-mark" aria-hidden="true">✦</span> Karty pro nás</h1>
+    <div class="top-actions">
+      <button class="icon-btn" id="btnPlayers" aria-label="Hráči">👥</button>
+      <button class="icon-btn" id="btnSettings" aria-label="Nastavení">⚙️</button>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+    <div class="fan" id="fan"></div>
+
+    <div class="card is-hidden" id="card" aria-live="polite">
+      <div class="card-inner">
+        <div class="face back">
+          <div class="back-pattern"></div>
+          <div class="back-center">
+            <div class="back-logo">✦</div>
+            <div class="back-title">Karty<br>pro nás</div>
+          </div>
+        </div>
+        <div class="face front" id="front">
+          <div class="front-top">
+            <span class="cat-pill" id="catPill"><span id="catIcon"></span> <span id="catName"></span></span>
+            <span class="card-num" id="cardNum"></span>
+          </div>
+          <p class="question" id="question"></p>
+          <div class="front-bottom" id="starter"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty" id="empty" hidden>
+      <div class="empty-emoji">🎉</div>
+      <p class="empty-title">Prošli jste celý balíček!</p>
+      <p class="empty-text" id="emptyText">Zamíchat a začít znovu?</p>
+      <button class="btn primary" id="btnReshuffle">Zamíchat znovu</button>
+    </div>
+  </main>
+
+  <section class="answers" id="answers" aria-label="Kdo už odpověděl"></section>
+
+  <nav class="controls">
+    <button class="btn ghost" id="btnPrev" aria-label="Předchozí karta">←</button>
+    <button class="btn primary big" id="btnNext">Vytáhnout kartu</button>
+    <div class="counter" id="counter"></div>
+  </nav>
+
+  <!-- Hráči -->
+  <dialog class="sheet" id="dlgPlayers">
+    <form method="dialog" class="sheet-head">
+      <h2>Kdo hraje?</h2>
+      <button class="icon-btn" aria-label="Zavřít">✕</button>
+    </form>
+    <p class="hint">Přidej jména a appka bude u každé karty ukazovat, kdo začíná odpovídat. Pořadí se střídá.</p>
+    <form class="add-row" id="formPlayer">
+      <input id="inpPlayer" type="text" maxlength="16" placeholder="Jméno" autocomplete="off" enterkeyhint="done">
+      <button class="btn primary" type="submit">Přidat</button>
+    </form>
+    <ul class="player-list" id="playerList"></ul>
+    <div class="sheet-foot">
+      <button class="btn ghost small" id="btnShufflePlayers">🔀 Zamíchat pořadí</button>
+    </div>
+  </dialog>
+
+  <!-- Nastavení -->
+  <dialog class="sheet" id="dlgSettings">
+    <form method="dialog" class="sheet-head">
+      <h2>Nastavení</h2>
+      <button class="icon-btn" aria-label="Zavřít">✕</button>
+    </form>
+
+    <h3>Kategorie</h3>
+    <div class="cat-list" id="catList"></div>
+
+    <h3>Naše vlastní otázky</h3>
+    <form class="add-row" id="formCustom">
+      <input id="inpCustom" type="text" maxlength="160" placeholder="Napiš vlastní otázku…" autocomplete="off" enterkeyhint="done">
+      <button class="btn primary" type="submit">Přidat</button>
+    </form>
+    <ul class="custom-list" id="customList"></ul>
+
+    <h3>Balíček</h3>
+    <div class="row-btns">
+      <button class="btn ghost small" id="btnReset">🔄 Zamíchat celý balíček znovu</button>
+    </div>
+
+    <h3>Bez internetu</h3>
+    <p class="hint">Stránka se po prvním otevření uloží do telefonu a funguje i bez signálu. Nejlíp si ji přidej na plochu:<br>
+      <b>iPhone:</b> Safari → Sdílet → <i>Přidat na plochu</i><br>
+      <b>Android:</b> Chrome → ⋮ → <i>Přidat na plochu</i> / <i>Nainstalovat</i></p>
+    <p class="hint small" id="offlineStatus"></p>
+  </dialog>
+
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
