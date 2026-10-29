@@ -286,9 +286,12 @@
     setSpeaking(false);
   }
 
+  // nahlas jen první tvar z „chtěl/a“ nebo „sám/sama“ (jinak hlas čte „lomeno a“) a bez emoji
+  const spoken = t => t.replace(/(\p{L})\/\p{L}+/gu, "$1").replace(/\p{Extended_Pictographic}/gu, "");
+
   function speak() {
     if (busy || !faceUp()) return;
-    const u = new SpeechSynthesisUtterance(byId.get(history[pos]).text);
+    const u = new SpeechSynthesisUtterance(spoken(byId.get(history[pos]).text));
     u.lang = czVoice ? czVoice.lang : "cs-CZ";
     if (czVoice) u.voice = czVoice;
     u.rate = 0.95;

@@ -1,6 +1,6 @@
 // Uloží stránku do telefonu, aby fungovala i bez signálu.
 // Při změně souborů zvyš číslo verze, ať se nová verze stáhne.
-const CACHE = "kpn-v3";
+const CACHE = "kpn-v4";
 const FONTS = "kpn-fonts";   // písmo má vlastní mezipaměť, aby přežilo i změnu verze
 const ASSETS = [
   "./",
