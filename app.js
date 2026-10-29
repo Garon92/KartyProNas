@@ -260,9 +260,74 @@
     card.classList.add(cls);
   }
 
+  // ---------- Čtení nahlas ----------
+  const btnSpeak = $("btnSpeak");
+  const tts = btnSpeak && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window ? window.speechSynthesis : null;
+  let czVoice = null;
+  let utterance = null;                            // právě čtená věta; null = nic se nečte
+
+  function pickVoice() {
+    const voices = tts.getVoices();
+    const cz = voices.filter(v => /^cs([-_]|$)/i.test(v.lang));
+    czVoice = cz.find(v => v.localService) || cz[0] || null;
+    // když prohlížeč hlasy zná, ale český mezi nimi není, tlačítko radši schovat
+    btnSpeak.hidden = voices.length > 0 && !czVoice;
+  }
+
+  function setSpeaking(on) {
+    btnSpeak.classList.toggle("speaking", on);
+    btnSpeak.setAttribute("aria-label", on ? "Zastavit čtení" : "Přečíst nahlas");
+  }
+
+  function stopSpeaking() {
+    if (!tts) return;
+    utterance = null;
+    tts.cancel();
+    setSpeaking(false);
+  }
+
+  function speak() {
+    if (busy || !faceUp()) return;
+    const u = new SpeechSynthesisUtterance(byId.get(history[pos]).text);
+    u.lang = czVoice ? czVoice.lang : "cs-CZ";
+    if (czVoice) u.voice = czVoice;
+    u.rate = 0.95;
+    let started = false;
+    u.onstart = () => { started = true; };
+    // když se čtení do pár vteřin vůbec nerozběhne, tlačítko vrátit (a bez hlasů schovat)
+    const watchdog = setTimeout(() => {
+      if (utterance !== u || started) return;
+      stopSpeaking();
+      if (!tts.getVoices().length) btnSpeak.hidden = true;
+    }, 4000);
+    u.onend = u.onerror = () => {
+      clearTimeout(watchdog);
+      if (utterance !== u) return;                 // ozvala se už zastavená věta
+      utterance = null;
+      setSpeaking(false);
+    };
+    if (tts.speaking || tts.pending) tts.cancel();
+    if (tts.paused) tts.resume();
+    utterance = u;
+    setSpeaking(true);
+    tts.speak(u);
+  }
+
+  if (tts) {
+    tts.cancel();                                  // Chrome umí dočítat i po obnovení stránky
+    btnSpeak.hidden = false;
+    pickVoice();
+    if (tts.addEventListener) tts.addEventListener("voiceschanged", pickVoice);
+    else tts.onvoiceschanged = pickVoice;
+    btnSpeak.addEventListener("click", () => (utterance ? stopSpeaking() : speak()));
+    document.addEventListener("visibilitychange", () => { if (document.hidden) stopSpeaking(); });
+    window.addEventListener("pagehide", stopSpeaking);
+  }
+
   // ---------- Akce ----------
   async function choose(fanCard) {
     if (busy || faceUp()) return;
+    stopSpeaking();
     const pool = remaining();
     if (!pool.length) { render(); return; }
     busy = true;
@@ -308,6 +373,7 @@
 
   async function next() {
     if (busy) return;
+    stopSpeaking();
     if (!faceUp()) return draw();
     busy = true;
     await throwOut("left");
@@ -327,6 +393,7 @@
 
   async function prev() {
     if (busy || pos === 0) return;
+    stopSpeaking();
     busy = true;
     if (faceUp()) {
       await throwOut("right");
@@ -352,6 +419,7 @@
   }
 
   function reshuffle() {
+    stopSpeaking();
     history = [];
     pos = 0;
     answered.clear();
@@ -411,6 +479,7 @@
 
   // ---------- Dialogy ----------
   function openDialog(id) {
+    stopSpeaking();
     const d = $(id);
     if (id === "dlgPlayers") renderPlayers();
     if (id === "dlgSettings") { renderCats(); renderCustom(); renderOffline(); }
@@ -561,6 +630,11 @@
   }
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    // nová verze převzala stránku: rovnou ji načíst, pokud zrovna nikdo nečte otočenou kartu
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController && !faceUp() && !busy) location.reload();
+    });
   }
 
   // ---------- Start ----------

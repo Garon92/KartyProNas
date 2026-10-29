@@ -257,16 +257,51 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .question.m { font-size: 7.3cqi; }
 .question.l { font-size: 6.4cqi; }
 
+.front-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 3cqi;
+  position: relative;
+  z-index: 1;
+}
 .front-bottom {
   font-size: 4.4cqi;
   color: #6E6878;
   font-weight: 800;
   min-height: 1.4em;
-  position: relative;
-  z-index: 1;
 }
 .front-bottom b { color: var(--cat); }
 .front[data-cat="radeji"] .front-bottom b { color: #A07800; }
+
+/* tlačítko pro přečtení otázky nahlas */
+.speak {
+  flex: none;
+  position: relative;
+  width: 14cqi; height: 14cqi;
+  min-width: 44px; min-height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cat);
+  color: #fff;
+  display: grid; place-items: center;
+  box-shadow: 0 6px 14px -8px var(--cat);
+  transition: transform .15s;
+}
+.speak[hidden] { display: none; }
+.front[data-cat="radeji"] .speak, .front[data-cat="vzpominky"] .speak { color: #2A2733; }
+.speak svg { width: 56%; height: 56%; }
+.speak .ic-stop, .speak.speaking .ic-speaker { display: none; }
+.speak.speaking .ic-stop { display: block; }
+.speak:active { transform: scale(.92); }
+.speak:focus-visible { outline: 3px solid #E5534B; outline-offset: 3px; }
+.speak.speaking::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--cat);
+  animation: speak-ring 1.2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes speak-ring { from { transform: scale(1); opacity: .8; } to { transform: scale(1.55); opacity: 0; } }
 
 /* animace karty */
 .card.no-anim, .card.no-anim .card-inner { transition: none !important; }
@@ -473,4 +508,5 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .card, .card-inner, .fan-card, .sheet[open] { transition-duration: .01s !important; animation: none !important; }
   .btn.ready { animation: none; }
+  .speak.speaking::before { animation: none; transform: scale(1.25); opacity: .6; }
 }
